@@ -1,6 +1,12 @@
 package com.rpmarea.monitor;
 
 import android.Manifest;
+import android.content.ClipData;
+import android.graphics.Color;
+import android.view.WindowInsets;
+import android.widget.FrameLayout;
+import java.io.File;
+import java.io.FileOutputStream;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Build;
@@ -37,8 +43,30 @@ public class MainActivity extends Activity {
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // V36: Android 15+ menggambar aplikasi di balik status bar.
+        // Terapkan insets sistem ke wadah WebView agar judul/aksi tidak
+        // tertutup jam, notifikasi, atau navigasi Android.
+        FrameLayout root = new FrameLayout(this);
+        root.setBackgroundColor(Color.rgb(16, 26, 52));
         web = new WebView(this);
-        setContentView(web);
+        root.addView(web, new FrameLayout.LayoutParams(-1,-1));
+        setContentView(root);
+        if(Build.VERSION.SDK_INT >= 30){
+            getWindow().setDecorFitsSystemWindows(false);
+            root.setOnApplyWindowInsetsListener((view, insets) -> {
+                android.graphics.Insets bars = insets.getInsets(
+                    WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
+                view.setPadding(bars.left,bars.top,bars.right,bars.bottom);
+                return insets;
+            });
+            root.requestApplyInsets();
+        }
+        if(Build.VERSION.SDK_INT >= 29){
+            getWindow().setStatusBarContrastEnforced(false);
+            getWindow().setNavigationBarContrastEnforced(false);
+        }
+        getWindow().setStatusBarColor(Color.rgb(16,26,52));
+        getWindow().setNavigationBarColor(Color.rgb(16,26,52));
         web.setBackgroundColor(0xff101a34);
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
@@ -131,6 +159,29 @@ public class MainActivity extends Activity {
 
     public class NativeBridge {
         @JavascriptInterface public void openExternal(String url){runOnUiThread(()->MainActivity.this.openExternal(url));}
+        @JavascriptInterface public void sharePng(String filename,String caption,String base64){
+            try{
+                byte[] bytes=Base64.decode(base64,Base64.DEFAULT);
+                if(bytes.length==0 || bytes.length>8*1024*1024)throw new IOException("File PNG tidak valid / terlalu besar");
+                File image=new File(getCacheDir(),ReportProvider.SHARE_FILE);
+                try(FileOutputStream out=new FileOutputStream(image)){out.write(bytes);}
+                runOnUiThread(()->{
+                    try{
+                        Uri content=Uri.parse("content://"+getPackageName()+".reports/share/"+ReportProvider.SHARE_FILE);
+                        Intent share=new Intent(Intent.ACTION_SEND);
+                        share.setType("image/png");
+                        share.putExtra(Intent.EXTRA_STREAM,content);
+                        share.putExtra(Intent.EXTRA_TEXT,caption);
+                        share.putExtra(Intent.EXTRA_SUBJECT,"Report RPM Area");
+                        share.setClipData(ClipData.newUri(getContentResolver(),"Laporan RPM",content));
+                        share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        startActivity(Intent.createChooser(share,"Bagikan laporan RPM"));
+                    }catch(Exception e){
+                        Toast.makeText(MainActivity.this,"Gagal membagikan gambar: "+e.getMessage(),Toast.LENGTH_LONG).show();
+                    }
+                });
+            }catch(Exception e){runOnUiThread(()->Toast.makeText(MainActivity.this,"Gagal menyiapkan foto: "+e.getMessage(),Toast.LENGTH_LONG).show());}
+        }
         @JavascriptInterface public void saveFile(String filename,String mime,String base64){
             try{
                 final byte[] bytes=Base64.decode(base64,Base64.DEFAULT);
@@ -139,7 +190,7 @@ public class MainActivity extends Activity {
                     Intent i=new Intent(Intent.ACTION_CREATE_DOCUMENT);
                     i.addCategory(Intent.CATEGORY_OPENABLE);
                     i.setType(mime==null||mime.isEmpty()?"application/octet-stream":mime);
-                    i.putExtra(Intent.EXTRA_TITLE,filename.replaceAll("[/\\]","_"));
+                    i.putExtra(Intent.EXTRA_TITLE,filename.replace('/','_').replace('\\','_'));
                     try{startActivityForResult(i,SAVE_FILE);}catch(Exception ex){pendingSave=null;Toast.makeText(MainActivity.this,"Gagal membuka penyimpanan",Toast.LENGTH_LONG).show();}
                 });
             }catch(Exception e){runOnUiThread(()->Toast.makeText(MainActivity.this,"File tidak dapat diproses",Toast.LENGTH_LONG).show());}
