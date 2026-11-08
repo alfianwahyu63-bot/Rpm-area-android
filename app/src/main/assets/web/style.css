@@ -752,3 +752,19 @@ body{color:var(--ink)}
 .goal-recap-table td:first-child small{display:block;max-width:155px;white-space:normal;color:var(--muted);margin-top:4px}
 .goal-recap-point{font-weight:900;color:var(--accent)}
 @media(max-width:370px){.goal-compare{padding:8px}.goal-compare-grid{gap:5px}.goal-compare-cell{padding:7px}.goal-compare-values b{font-size:12px}}
+
+/* V42 — generator format WhatsApp dari master Excel */
+.wa-generator{margin:16px 0 20px;padding:21px;border:1px solid color-mix(in srgb,var(--accent) 30%,var(--border));}
+.wa-generator-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:14px 0 18px;}
+.wa-generator .wa-label select,.wa-generator .wa-label textarea{width:100%;}
+.wa-generator-brandhead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:13px;margin-bottom:9px;}
+.wa-generator-brandhead .btn{font-size:12px;padding:9px 12px;min-height:38px;}
+.wa-generator-brands{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;max-height:195px;overflow:auto;padding:10px;border-radius:14px;border:1px solid var(--border);background:var(--canvas);}
+.wa-generator-check{display:flex;align-items:center;gap:9px;background:var(--subtle);border:1px solid var(--border);border-radius:11px;padding:10px 12px;min-height:42px;font-weight:700;font-size:12px;cursor:pointer;min-width:0;}
+.wa-generator-check span{overflow-wrap:anywhere;}
+.wa-generator-check input{accent-color:var(--accent);width:17px;height:17px;flex:none;}
+.wa-generator-info{font-size:12px;line-height:1.5;color:var(--muted);margin:12px 0 14px;}
+.wa-generator #waGenPreview{min-height:195px;max-height:430px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px;}
+.wa-generator-actions{margin:13px 0 9px;flex-wrap:wrap;}
+.wa-generator-help{display:block;line-height:1.65;color:var(--muted);font-size:11px;}
+@media(max-width:780px){.wa-generator{padding:14px}.wa-generator-grid{grid-template-columns:1fr}.wa-generator-actions .btn{flex:1 1 130px}.wa-generator #waGenPreview{font-size:16px}}

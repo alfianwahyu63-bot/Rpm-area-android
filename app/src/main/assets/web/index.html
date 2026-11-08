@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#111c38"><meta name="description" content="Monitoring POINT QTY 50% + Net Sales 50% untuk 12 toko dalam satu area, dengan input 7 hari dan sinkronisasi opsional.">
 <title>RPM Area V41 · Target & Aktual Brand</title>
 <link rel="manifest" href="./manifest.webmanifest"><link rel="icon" type="image/png" href="./icon-192.png"><link rel="apple-touch-icon" href="./apple-touch-icon.png">
-<link rel="stylesheet" href="./style.css?v=41">
+<link rel="stylesheet" href="./style.css?v=42">
 <link rel="stylesheet" href="./insights.css?v=36"><link rel="stylesheet" href="./v35.css?v=36">
 <link rel="stylesheet" href="./nav-styles.css?v=40">
 <link rel="stylesheet" href="./nav-settings.css?v=40">
@@ -151,9 +151,24 @@
     <div class="sectionhead"><div><div class="eyebrow">INPUT HARIAN</div><h2 id="inputHeading">Input penjualan 7 hari</h2><p>PLU, deskripsi, dan HPP cukup satu kali per minggu. Isi QTY langsung pada kolom Senin–Minggu.</p></div><div class="inline-actions"><label class="select-wrap">Toko <select id="inputStore"></select></label><button id="addPlu" class="btn primary" type="button">＋ PLU</button></div></div>
     <div id="inputSummary" class="input-summary"></div>
     <div id="inputQualityAlerts" class="insight-quality" aria-live="polite"></div>
+    <!-- V42: template berasal dari katalog Excel yang sudah diimpor pada minggu pilihan. -->
+    <section class="surface wa-generator" id="waGenerator" aria-labelledby="waGenHeading">
+      <div class="panel-header"><div><span class="wa-kicker">📋 GENERATOR FORMAT • MASTER EXCEL</span><h3 id="waGenHeading">Buat Format Laporan WhatsApp</h3><p>Pilih periode, toko, dan brand. Daftar PLU otomatis mengikuti <b>LIST ITEM</b> yang telah diimpor untuk minggu tersebut. Hanya membuat teks, tidak mengubah QTY atau target.</p></div><span class="pill muted">V42</span></div>
+      <div class="wa-generator-grid">
+        <label class="wa-label">Periode laporan<select id="waGenPeriod" aria-label="Periode template WhatsApp"></select></label>
+        <label class="wa-label">Toko dari Excel<select id="waGenStore" aria-label="Toko template WhatsApp"></select></label>
+        <label class="wa-label">Identitas toko dalam laporan<select id="waGenStoreMode"><option value="code">Kode Toko (SH80)</option><option value="initial">Inisial Toko (PLJ)</option><option value="name">Nama Toko (Pangkalan Jati 2)</option></select></label>
+      </div>
+      <div class="wa-generator-brandhead"><b>Pilih brand dari Excel</b><div class="inline-actions"><button type="button" id="waGenSelectAll" class="btn ghost">Semua brand</button><button type="button" id="waGenSelectNone" class="btn ghost">Kosongkan</button></div></div>
+      <div id="waGenBrandList" class="wa-generator-brands" role="group" aria-label="Brand pilihan untuk laporan"></div>
+      <p id="waGenInfo" class="wa-generator-info" role="status" aria-live="polite">Upload Excel terlebih dahulu bila periode belum memiliki katalog PLU.</p>
+      <label class="wa-label" for="waGenPreview">Format siap kirim (QTY setelah / bisa diisi oleh toko)<textarea id="waGenPreview" rows="9" spellcheck="false" placeholder="Pilih periode, toko, dan brand untuk membuat template."></textarea></label>
+      <div class="inline-actions wa-generator-actions"><button type="button" id="waGenBuild" class="btn secondary">↻ Buat / Perbarui Format</button><button type="button" id="waGenCopy" class="btn primary">📋 Salin Format</button><button type="button" id="waGenDownload" class="btn ghost">↓ Unduh TXT</button></div>
+      <small class="wa-generator-help">Contoh nama toko yang dibaca ketika dikirim balik: <b>SH80</b>, <b>PLJ</b>, atau <b>Pangkalan Jati 2</b> (berdasarkan nama &amp; inisial pada master Excel). Toko yang ambigu tidak disimpan otomatis.</small>
+    </section>
     <!-- WhatsApp text importer: daily quantity, target and item catalog remain weekly -->
     <section class="surface wa-panel" id="waImportPanel" aria-labelledby="waHeading">
-      <div class="panel-header"><div><span class="wa-kicker">⚡ INPUT CEPAT • CHAT WHATSAPP</span><h3 id="waHeading">Tempel Laporan RPM per PLU</h3><p>Format baru: <b>Periode: 2-8 Nov</b>, <b>Kode Toko: SC94</b>, lalu <b>✅*BRAND*</b> dan <b>PLU/QTY</b>. Format lama tetap bisa digunakan. Pilih tanggal → periksa → simpan.</p></div><span class="pill muted">Khusus minggu terpilih</span></div>
+      <div class="panel-header"><div><span class="wa-kicker">⚡ INPUT CEPAT • CHAT WHATSAPP</span><h3 id="waHeading">Tempel Laporan RPM per PLU</h3><p>Format baru: <b>Periode: 2-8 Nov</b>, <b>Toko: PLJ / SH80 / Pangkalan Jati 2</b>, lalu <b>✅*BRAND*</b> dan <b>PLU/QTY</b>. Format lama tetap bisa digunakan. Pilih tanggal → periksa → simpan.</p></div><span class="pill muted">Khusus minggu terpilih</span></div>
       <div class="wa-controls">
         <label class="wa-label">Tanggal penjualan (wajib)<select id="waDaySelect"><option value="">Pilih tanggal dahulu</option></select><small>Angka dari chat akan dimasukkan ke <b>satu hari</b> yang Anda pilih, bukan ke tujuh hari sekaligus.</small></label>
         <label class="wa-label">Cara menyimpan<select id="waSaveMode"><option value="replace">Ganti QTY PLU yang disebut di laporan</option><option value="add">Tambahkan ke QTY yang sudah ada</option></select><small>Default <b>Ganti</b> supaya menempel ulang laporan tidak menggandakan penjualan.</small></label>
@@ -175,7 +190,7 @@ Kode Toko: SC94
 404631/0
 407607/3"></textarea></label>
       <div class="wa-options"><label class="wa-check"><input id="waAddUnknown" type="checkbox"><span>Izinkan PLU yang belum ada di master dibuat otomatis (HPP awal Rp0, wajib dilengkapi agar Sub NS akurat).</span></label></div>
-      <div class="inline-actions wa-actions"><button type="button" class="btn ghost" id="waTemplateBtn">📋 Salin Template WA (Brand A–Z, PLU ↑)</button><button type="button" class="btn primary" id="waPreviewBtn">🔍 Periksa Laporan</button><button type="button" class="btn secondary" id="waApplyBtn" disabled>✓ Simpan QTY ke Tanggal Dipilih</button><button type="button" class="btn ghost" id="waClearBtn">Bersihkan teks</button></div>
+      <div class="inline-actions wa-actions"><button type="button" class="btn ghost" id="waTemplateBtn">📋 Salin Template Cepat (Semua Brand)</button><button type="button" class="btn primary" id="waPreviewBtn">🔍 Periksa Laporan</button><button type="button" class="btn secondary" id="waApplyBtn" disabled>✓ Simpan QTY ke Tanggal Dipilih</button><button type="button" class="btn ghost" id="waClearBtn">Bersihkan teks</button></div>
       <div id="waPreview" class="wa-preview" aria-live="polite" role="status"><div class="wa-empty">Tempel teks laporan dengan format <b>PLU/QTY</b>, lalu tekan <b>Periksa Laporan</b>. Baris <code>123456/</code> dihitung 0. Template yang seluruh QTY-nya kosong tidak dapat disimpan untuk mencegah QTY lama terhapus.</div></div>
     </section>
     <div class="surface input-surface"><div class="panel-header"><div><h3 id="inputStoreTitle">Pilih toko</h3><p id="inputWeekLabel">—</p><small id="inputSortMeta" class="input-sort-meta">Semua 0 PLU • Urutan Brand A–Z → PLU ↑</small></div><div class="inline-actions input-tools"><label class="select-wrap compact">Urutkan <select id="inputSort" aria-label="Urutkan daftar PLU"><option value="brand-asc">Brand A–Z → PLU ↑</option><option value="description-asc">Deskripsi A–Z</option><option value="plu-asc">PLU kecil–besar</option><option value="plu-desc">PLU besar–kecil</option></select></label><input id="inputSearch" class="search compact" type="search" placeholder="Cari PLU / brand / deskripsi" aria-label="Cari PLU atau brand"><span class="pill muted">Geser tabel ➜ di HP</span></div></div><div class="table-scroll"><table class="entrytable"><thead><tr><th class="sticky-col">PLU</th><th>BRAND</th><th>DESKRIPSI</th><th>HPP / UNIT</th><th>SEN</th><th>SEL</th><th>RAB</th><th>KAM</th><th>JUM</th><th>SAB</th><th>MIN</th><th>TOTAL QTY</th><th>SUB NS</th><th></th></tr></thead><tbody id="entryBody"></tbody><tfoot id="entryFoot"></tfoot></table></div></div>
@@ -315,7 +330,8 @@ Kode Toko: SC94
 <script src="./catalog-delete.js?v=33"></script>
 <script src="./insights.js?v=34"></script>
 <script src="./daily-clear.js?v=33"></script>
-<script src="./app.js?v=41"></script>
+<script src="./wa-v42.js?v=42"></script>
+<script src="./app.js?v=42"></script>
 <script src="./v35.js?v=35"></script>
 <script src="./supabase-rest.js?v=33"></script>
 <script type="module" src="./cloud.js?v=33"></script>
